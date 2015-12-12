@@ -1,0 +1,36 @@
+#
+# generated on 2015/12/08 01:35:52
+#
+# --table-start--
+dataClass=lab.computing.khurshid.khurshidwebdelegation.dto.WebRequest
+tableName=webrequest
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=url
+# --field-end--
+# --field-start--
+fieldName=webParams
+dataPersister=SERIALIZABLE
+# --field-end--
+# --field-start--
+fieldName=responseString
+# --field-end--
+# --field-start--
+fieldName=requestStatus
+dataPersister=ENUM_STRING
+# --field-end--
+# --field-start--
+fieldName=requestTimeStamp
+dataPersister=DATE_STRING
+# --field-end--
+# --field-start--
+fieldName=responseTimeStamp
+dataPersister=DATE_STRING
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
