@@ -1,14 +1,17 @@
 package lab.computing.khurshid.khurshidwebdelegation;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
-import android.os.AsyncTask;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,19 +20,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.util.List;
+import java.util.ArrayList;
 
-import lab.computing.khurshid.khurshidwebdelegation.dto.WebParam;
 import lab.computing.khurshid.khurshidwebdelegation.dto.WebRequest;
 import lab.computing.khurshid.khurshidwebdelegation.management.WebDelegateManager;
+import lab.computing.khurshid.khurshidwebdelegation.requestresponse.Friend;
+import lab.computing.khurshid.khurshidwebdelegation.requestresponse.GetFriendsRequestResponse;
 
 public class MainActivity extends AppCompatActivity {
 
     WebDelegateManager webDelegateManager;
 
     // ------View Refrences-------->>
-    EditText urlEditText, employeeNameEditText, employeeEmailEditText,
-            employeePhoneEditText;
+    ListView friendsListView;
+
+
+    ArrayAdapter<String> adapter;
+
+    ArrayList<String> friendsNameList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,51 +47,71 @@ public class MainActivity extends AppCompatActivity {
         webDelegateManager = new WebDelegateManager(getApplicationContext());
 
         // -------referingview--->>
-        urlEditText = (EditText) findViewById(R.id.urlEditText);
-        employeeNameEditText = (EditText) findViewById(R.id.employeeNameEditText);
-        employeeEmailEditText = (EditText) findViewById(R.id.employeeEmailEditText);
-        employeePhoneEditText = (EditText) findViewById(R.id.employeePhoneEditText);
+        friendsListView = (ListView) findViewById(R.id.friendsListView);
+        adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item_text, friendsNameList);
+        friendsListView.setAdapter(adapter);
 
+
+        getData();
     }
 
-    public void saveData(View v) {
+    public void getData() {
 
-        WebRequest webRequest = new WebRequest(urlEditText.getText().toString());
-        // webRequest.getWebParams().put("company_id", "5");
-        // webRequest.getWebParams().put("name",
-        // employeeNameEditText.getText().toString());
-        // webRequest.getWebParams().put("email",
-        // employeeEmailEditText.getText().toString());
-        // webRequest.getWebParams().put("phone",
-        // employeePhoneEditText.getText().toString());
+        WebRequest webRequest = new WebRequest("http://crossappsender-1155.appspot.com/getFriends");
+        webRequest.getWebParams().put("userID", "1");
 
-        webRequest.getWebParams().put("latitude", "23.565");
-        webRequest.getWebParams().put("longitude", "34.342");
-        webRequest.getWebParams().put("ACCIDENT_APP_USER_ID", "1");
-        webRequest.getWebParams().put("placeName", "Ambala");
+        GetFriendsRequestResponse getFriendsRequestResponse = (GetFriendsRequestResponse) webDelegateManager.delegateWebRequest(webRequest, GetFriendsRequestResponse.class, new WebDelegateManager.WebDelegateResponseListener() {
+            @Override
+            public void onResponse(Object object) {
+                GetFriendsRequestResponse getFriendsRequestResponse = (GetFriendsRequestResponse) object;
+                friendsNameList.clear();
+                if (getFriendsRequestResponse != null) {
+                    for (Friend f :
+                            getFriendsRequestResponse.getFriends()) {
+                        friendsNameList.add(f.getDisplayName());
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("VOLLEY ERROR " + error.toString());
+            }
+        });
 
-        webDelegateManager.delegateWebRequest(webRequest);
 
-        new ExportDatabaseFileTask().execute("");
-
-    }
-
-    public void getData(View v) {
-
-        List<WebRequest> webRequests = webDelegateManager.getWebRequests();
-
-        for (WebRequest webRequest : webRequests) {
-            WebParam<String, String> param = webRequest.getWebParams();
-
-            Toast.makeText(
-                    getApplicationContext(),
-                    webRequest.getUrl() + " " + webRequest.getRequestStatus()
-                            + " " + webRequest.getRequestTimeStamp(),
-                    Toast.LENGTH_LONG).show();
-
+        friendsNameList.clear();
+        if (getFriendsRequestResponse != null) {
+            for (Friend f :
+                    getFriendsRequestResponse.getFriends()) {
+                friendsNameList.add(f.getDisplayName());
+            }
         }
+        adapter.notifyDataSetChanged();
+
+
+        //   new ExportDatabaseFileTask().execute("");
 
     }
+
+
+//    public void getData(View v) {
+//
+//        List<WebRequest> webRequests = webDelegateManager.getWebRequests();
+//
+//        for (WebRequest webRequest : webRequests) {
+//            WebParam<String, String> param = webRequest.getWebParams();
+//
+//            Toast.makeText(
+//                    getApplicationContext(),
+//                    webRequest.getUrl() + " " + webRequest.getRequestStatus()
+//                            + " " + webRequest.getRequestTimeStamp(),
+//                    Toast.LENGTH_LONG).show();
+//
+//        }
+//
+//    }
 
     public void deleteAll(View v) {
         webDelegateManager.deleteAllWebRequests();
@@ -190,4 +218,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 }

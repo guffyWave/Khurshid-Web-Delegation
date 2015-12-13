@@ -37,6 +37,10 @@ public class DatabasePersistenceManager {
         return webRequestRuntimeExceptionDao.queryForId(id);
     }
 
+    public List<WebRequest> getWebRequest(String url) {
+        return webRequestRuntimeExceptionDao.queryForEq("url", url);
+    }
+
     public List<WebRequest> getAllWebRequest() {
         return webRequestRuntimeExceptionDao.queryForAll();
     }
@@ -58,4 +62,10 @@ public class DatabasePersistenceManager {
         int r = webRequestRuntimeExceptionDao.deleteById(id);
         return ((r > 0) ? true : false);
     }
+
+    public boolean delete(WebRequest wr) {
+        int r = webRequestRuntimeExceptionDao.delete(wr);
+        return ((r > 0) ? true : false);
+    }
+
 }
