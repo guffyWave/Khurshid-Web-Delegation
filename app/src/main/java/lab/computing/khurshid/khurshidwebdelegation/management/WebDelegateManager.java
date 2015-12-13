@@ -48,15 +48,24 @@ public class WebDelegateManager {
             delegateToVolley(webRequest, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    WebRequest wr = getWebRequest(webRequest.getUrl()).get(0);
-                    System.out.println(response);
-                    wr.setResponseString(response);
-                    persistenceManager.update(wr);
 
+                    System.out.println(response);
+
+                    //send to the response
                     if (response != null) {
                         if (!response.equals("")) {
                             webDelegateResponseListener.onResponse(gson.fromJson(response, responseClass));
                         }
+                    }
+
+                    //---->> update or save the response
+                    List<WebRequest> webRequestList = getWebRequest(webRequest.getUrl());
+                    if (webRequestList != null && webRequestList.size() > 0) {
+                        WebRequest wr = webRequestList.get(0);
+                        wr.setResponseString(response);
+                        persistenceManager.update(wr);
+                    } else {
+                        persistenceManager.save(webRequest);
                     }
                 }
             }, responseErrorListener);
@@ -64,11 +73,14 @@ public class WebDelegateManager {
 
         //persistenceManager.update(webRequest);
 
-        WebRequest wr = getWebRequest(webRequest.getUrl()).get(0);
-        String responseString = wr.getResponseString();
-        if (responseString != null) {
-            if (!responseString.equals("")) {
-                return gson.fromJson(responseString, responseClass);
+        List<WebRequest> webRequestList = getWebRequest(webRequest.getUrl());
+        if (webRequestList != null && webRequestList.size() > 0) {
+            WebRequest wr = webRequestList.get(0);
+            String responseString = wr.getResponseString();
+            if (responseString != null) {
+                if (!responseString.equals("")) {
+                    return gson.fromJson(responseString, responseClass);
+                }
             }
         }
         return null;

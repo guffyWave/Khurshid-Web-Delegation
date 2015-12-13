@@ -57,8 +57,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void getData() {
 
+//        WebRequest webRequest = new WebRequest("http://crossappsender-1155.appspot.com/fetchChatStreamPackets");
+//        webRequest.getWebParams().put("firstUserID", "1");
+//        webRequest.getWebParams().put("secondUserID", "4");
+
         WebRequest webRequest = new WebRequest("http://crossappsender-1155.appspot.com/getFriends");
         webRequest.getWebParams().put("userID", "1");
+
 
         GetFriendsRequestResponse getFriendsRequestResponse = (GetFriendsRequestResponse) webDelegateManager.delegateWebRequest(webRequest, GetFriendsRequestResponse.class, new WebDelegateManager.WebDelegateResponseListener() {
             @Override
